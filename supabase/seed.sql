@@ -1,0 +1,1 @@
+-- Placeholder. Owner: Dev A. Demo opportunities will be loaded here (or via scripts/prefetch-demo.ts).

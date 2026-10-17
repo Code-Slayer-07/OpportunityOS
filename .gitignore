@@ -5,7 +5,6 @@ node_modules/
 __pycache__/
 *.py[cod]
 .agents/
-.claude/
 *.egg-info/
 .venv/
 venv/
@@ -35,3 +34,8 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 Desktop.ini
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
