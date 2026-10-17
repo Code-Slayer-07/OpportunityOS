@@ -35,7 +35,7 @@ function TopPriorities({ items }: { items: ApplicationItem[] }) {
       </h2>
       <ol className="grid gap-3 md:grid-cols-3">
         {top.map((a, i) => (
-          <li key={a.id} className="rounded-xl border border-indigo-200 bg-indigo-50/60 p-3">
+          <li key={a.id} className="rounded-xl border border-brand-200 bg-brand-50/60 p-3">
             <div className="flex items-start justify-between gap-2">
               <p className="text-sm font-semibold text-gray-900">
                 {i + 1}. {a.opportunity.title}
@@ -43,8 +43,8 @@ function TopPriorities({ items }: { items: ApplicationItem[] }) {
               <UrgencyBadge deadline={a.opportunity.deadline} />
             </div>
             <p className="text-xs text-gray-600">{a.opportunity.org}</p>
-            <p className="mt-2 text-sm text-indigo-900">{priorityReason(a.match?.score ?? 0, a.daysLeft)}</p>
-            <a href={a.opportunity.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs text-indigo-600 underline">
+            <p className="mt-2 text-sm text-brand-900">{priorityReason(a.match?.score ?? 0, a.daysLeft)}</p>
+            <a href={a.opportunity.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs text-brand-600 underline">
               Open listing ↗
             </a>
           </li>
@@ -73,7 +73,7 @@ export function ActionPlanBoard() {
       <div className="mx-auto max-w-xl rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center">
         <h1 className="text-xl font-semibold">Your action plan is empty</h1>
         <p className="mt-2 text-gray-600">Save opportunities from your matches and we’ll track deadlines and tell you what to do first.</p>
-        <Link href="/matches" className="mt-5 inline-flex rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+        <Link href="/matches" className="mt-5 inline-flex rounded-lg bg-brand-600 px-5 py-2 text-sm font-medium text-white hover:bg-brand-700">
           Go to matches
         </Link>
       </div>

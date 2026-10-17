@@ -15,7 +15,7 @@ export function Input({ label, error, id, className = "", ...props }: InputProps
       <input
         id={inputId}
         aria-invalid={!!error}
-        className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 ${error ? "border-red-500" : "border-gray-300"} ${className}`}
+        className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500 ${error ? "border-red-500" : "border-gray-300"} ${className}`}
         {...props}
       />
       {error && <p className="mt-1 text-sm text-red-600">{error}</p>}

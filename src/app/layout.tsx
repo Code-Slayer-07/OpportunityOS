@@ -1,10 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "OpportunityOS",
-  description: "Find what matters. Prove it's real. Never miss a deadline.",
+  title: { default: "OpportunityOS: Find what matters. Prove it's real.", template: "%s | OpportunityOS" },
+  description: "Live internships, jobs, hackathons and scholarships matched to your profile, with quoted evidence and deadline tracking.",
 };
+
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#4f46e5" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

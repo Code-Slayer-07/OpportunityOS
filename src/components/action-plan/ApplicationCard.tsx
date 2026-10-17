@@ -30,7 +30,7 @@ export function ApplicationCard({ item }: { item: ApplicationItem }) {
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <UrgencyBadge deadline={o.deadline} />
-        <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs capitalize text-indigo-700">{o.type}</span>
+        <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs capitalize text-brand-700">{o.type}</span>
         <FlagTag flag={o.flag} />
       </div>
 
@@ -50,7 +50,7 @@ export function ApplicationCard({ item }: { item: ApplicationItem }) {
             </option>
           ))}
         </select>
-        <a href={o.sourceUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 text-xs text-indigo-600 underline underline-offset-2">
+        <a href={o.sourceUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 text-xs text-brand-600 underline underline-offset-2">
           Source ↗
         </a>
         <button

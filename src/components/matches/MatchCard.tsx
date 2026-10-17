@@ -60,7 +60,7 @@ export function MatchCard({ match }: { match: MatchWithOpportunity }) {
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-gray-600">
-            <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium capitalize text-indigo-700">{o.type}</span>
+            <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium capitalize text-brand-700">{o.type}</span>
             <FlagTag flag={o.flag} />
             <span>{where}</span>
             {o.reward && <span className="max-w-xs truncate" title={o.reward}>💰 {o.reward}</span>}
@@ -81,7 +81,7 @@ export function MatchCard({ match }: { match: MatchWithOpportunity }) {
               type="button"
               onClick={() => setOpen((v) => !v)}
               aria-expanded={open}
-              className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+              className="text-sm font-medium text-brand-600 hover:text-brand-800"
             >
               {open ? "Hide details ▲" : "Why you qualify ▼"}
             </button>
@@ -130,7 +130,7 @@ export function MatchCard({ match }: { match: MatchWithOpportunity }) {
             href={o.sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex text-sm font-medium text-indigo-600 underline underline-offset-2 hover:text-indigo-800"
+            className="inline-flex text-sm font-medium text-brand-600 underline underline-offset-2 hover:text-brand-800"
           >
             View original listing ↗
           </a>

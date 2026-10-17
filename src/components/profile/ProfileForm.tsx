@@ -193,7 +193,7 @@ function Form({ profile }: { profile: ProfileResponse }) {
           <div className="flex flex-wrap gap-3">
             {TYPES.map((t) => (
               <label key={t} className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm capitalize">
-                <input type="checkbox" checked={form.types.includes(t)} onChange={() => toggleType(t)} className="h-4 w-4 accent-indigo-600" />
+                <input type="checkbox" checked={form.types.includes(t)} onChange={() => toggleType(t)} className="h-4 w-4 accent-brand-600" />
                 {t}
               </label>
             ))}
@@ -210,7 +210,7 @@ function Form({ profile }: { profile: ProfileResponse }) {
             aria-checked={form.openToRemote}
             aria-label="Open to remote"
             onClick={() => set("openToRemote", !form.openToRemote)}
-            className={`relative h-6 w-11 shrink-0 rounded-full transition ${form.openToRemote ? "bg-indigo-600" : "bg-gray-300"}`}
+            className={`relative h-6 w-11 shrink-0 rounded-full transition ${form.openToRemote ? "bg-brand-600" : "bg-gray-300"}`}
           >
             <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${form.openToRemote ? "translate-x-5" : ""}`} />
           </button>

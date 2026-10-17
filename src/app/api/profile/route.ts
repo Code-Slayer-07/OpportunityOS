@@ -95,7 +95,7 @@ async function putProfile(request: Request) {
     profile_complete: complete,
   };
   // Drop undefined so omitted fields keep their stored value.
-  const row: Record<string, any> = Object.fromEntries(Object.entries(update).filter(([, v]) => v !== undefined));
+  const row: Record<string, unknown> = Object.fromEntries(Object.entries(update).filter(([, v]) => v !== undefined));
 
   const { data, error } = await auth.supabase.from("profiles").upsert(row).select("*").single();
   if (error) return fail(error.message, 500);

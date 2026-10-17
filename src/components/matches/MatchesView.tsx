@@ -25,15 +25,15 @@ const STAGES: { key: Stage; label: string }[] = [
 function Progress({ stage }: { stage: Stage }) {
   const current = STAGES.findIndex((s) => s.key === stage);
   return (
-    <ol role="status" aria-live="polite" className="flex flex-wrap gap-x-6 gap-y-2 rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm">
+    <ol role="status" aria-live="polite" className="flex flex-wrap gap-x-6 gap-y-2 rounded-xl border border-brand-100 bg-brand-50 px-4 py-3 text-sm">
       {STAGES.map((s, i) => (
-        <li key={s.key} className={`flex items-center gap-2 ${i < current ? "text-green-700" : i === current ? "font-semibold text-indigo-700" : "text-gray-400"}`}>
-          {i < current ? "✓" : i === current ? <span className="h-3 w-3 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" /> : "○"}
+        <li key={s.key} className={`flex items-center gap-2 ${i < current ? "text-green-700" : i === current ? "font-semibold text-brand-700" : "text-gray-400"}`}>
+          {i < current ? "✓" : i === current ? <span className="h-3 w-3 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" /> : "○"}
           {s.label}
           {i === current && "…"}
         </li>
       ))}
-      {stage === "searching" && <li className="text-xs text-indigo-500">Live search can take a minute or two. Cached results stay visible.</li>}
+      {stage === "searching" && <li className="text-xs text-brand-500">Live search can take a minute or two. Cached results stay visible.</li>}
     </ol>
   );
 }
@@ -54,7 +54,7 @@ export function MatchesView() {
       <div className="mx-auto max-w-xl rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
         <h1 className="text-xl font-semibold">Build your profile first</h1>
         <p className="mt-2 text-gray-600">We match opportunities to your degree, skills and preferences. It takes about 3 minutes.</p>
-        <Link href="/profile" className="mt-5 inline-flex rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+        <Link href="/profile" className="mt-5 inline-flex rounded-lg bg-brand-600 px-5 py-2 text-sm font-medium text-white hover:bg-brand-700">
           Complete profile
         </Link>
       </div>
@@ -90,7 +90,7 @@ export function MatchesView() {
             key={f.value}
             onClick={() => setFilter(f.value)}
             aria-pressed={filter === f.value}
-            className={`rounded-full border px-3 py-1 text-sm ${filter === f.value ? "border-indigo-600 bg-indigo-600 text-white" : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"}`}
+            className={`rounded-full border px-3 py-1 text-sm ${filter === f.value ? "border-brand-600 bg-brand-600 text-white" : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"}`}
           >
             {f.label}
           </button>
@@ -114,7 +114,7 @@ export function MatchesView() {
           ) : (
             <>
               <p className="font-medium">No {filter} matches</p>
-              <p className="mt-1 text-sm text-gray-600">Try another filter, or broaden the opportunity types in your <Link href="/profile" className="text-indigo-600 underline">profile</Link>.</p>
+              <p className="mt-1 text-sm text-gray-600">Try another filter, or broaden the opportunity types in your <Link href="/profile" className="text-brand-600 underline">profile</Link>.</p>
             </>
           )}
         </div>
@@ -128,7 +128,7 @@ export function MatchesView() {
 
       {!running && all.length > 0 && shown.length > 0 && (
         <p className="text-center text-sm text-gray-500">
-          Not seeing enough? Broaden the types or locations in your <Link href="/profile" className="text-indigo-600 underline">profile</Link>.
+          Not seeing enough? Broaden the types or locations in your <Link href="/profile" className="text-brand-600 underline">profile</Link>.
         </p>
       )}
     </div>
