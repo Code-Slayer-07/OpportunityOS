@@ -8,13 +8,15 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function requireUser() {
   const supabase = await createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    return { response: fail("Unauthorized", 401), user: null, supabase };
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error || !user) return { response: fail("Unauthorized", 401), user: null, supabase };
+    return { response: null, user, supabase };
+  } catch {
+    // Auth service unreachable: report it as such instead of crashing the route.
+    return { response: fail("Authentication service unavailable", 503), user: null, supabase };
   }
-  return { response: null, user, supabase };
 }

@@ -1,5 +1,5 @@
 // GET/PUT current user's profile. Owner: Dev A.
-import { fail, ok } from "@/lib/api";
+import { fail, ok, safe } from "@/lib/api";
 import { requireUser } from "@/lib/auth/requireUser";
 import { profileSchema, REQUIRED_PROFILE_FIELDS, type ProfileInput } from "@/lib/validation/schemas";
 
@@ -29,7 +29,7 @@ const toApi = (r: ProfileRow) => ({
 
 const isFilled = (v: unknown) => (Array.isArray(v) ? v.length > 0 : v !== undefined && v !== null && v !== "");
 
-export async function GET() {
+async function getProfile() {
   const auth = await requireUser();
   if (auth.response) return auth.response;
 
@@ -44,7 +44,7 @@ export async function GET() {
   return ok(toApi(data));
 }
 
-export async function PUT(request: Request) {
+async function putProfile(request: Request) {
   const auth = await requireUser();
   if (auth.response) return auth.response;
 
@@ -101,3 +101,6 @@ export async function PUT(request: Request) {
   if (error) return fail(error.message, 500);
   return ok(toApi(data));
 }
+
+export const GET = safe(getProfile);
+export const PUT = safe(putProfile);

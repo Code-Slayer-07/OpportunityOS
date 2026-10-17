@@ -16,8 +16,19 @@ function redirectTo(request: NextRequest, path: string, from: NextResponse) {
 }
 
 export async function proxy(request: NextRequest) {
-  const { response, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
+  if (pathname === "/api/health") return NextResponse.next(); // public liveness check
+
+  let session: Awaited<ReturnType<typeof updateSession>>;
+  try {
+    session = await updateSession(request);
+  } catch {
+    // Supabase unreachable: fail the request cleanly instead of crashing the proxy.
+    return pathname.startsWith("/api/")
+      ? NextResponse.json({ error: { message: "Authentication service unavailable" } }, { status: 503 })
+      : NextResponse.next();
+  }
+  const { response, user } = session;
 
   if (!user) {
     // API clients get a JSON 401 (not an HTML redirect to /login).
