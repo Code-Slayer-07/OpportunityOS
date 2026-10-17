@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -12,7 +11,6 @@ import { loginSchema, signupSchema } from "@/lib/validation/schemas";
 type FieldErrors = Partial<Record<"name" | "email" | "password", string>>;
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
-  const router = useRouter();
   const isSignup = mode === "signup";
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -48,8 +46,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           // Email confirmation is enabled in Supabase: no session until the user confirms.
           return setNotice("Check your email to confirm your account, then log in.");
         }
-        router.push("/profile");
-        router.refresh();
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- full page load on purpose: the session changed
+        window.location.href = "/profile"; // hard navigation: a fresh session means a fresh page
       } else {
         const { email, password } = parsed.data;
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -60,8 +58,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           .select("profile_complete")
           .eq("id", data.user.id)
           .maybeSingle();
-        router.push(profile?.profile_complete ? "/matches" : "/profile");
-        router.refresh();
+        window.location.href = profile?.profile_complete ? "/matches" : "/profile";
       }
     } catch {
       setFormError("Something went wrong. Please try again.");

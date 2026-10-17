@@ -4,6 +4,7 @@ import { FlagTag } from "@/components/ui/FlagTag";
 import { formatDate } from "@/components/matches/format";
 import { useRemoveApplication, useUpdateApplicationStatus } from "@/hooks";
 import { APPLICATION_STATUSES, type ApplicationItem, type ApplicationStatus } from "@/types";
+import { ApplyButton } from "@/components/matches/SourceBadge";
 import { UrgencyBadge } from "./UrgencyBadge";
 
 const scoreTone = (s: number) => (s >= 75 ? "bg-green-100 text-green-800" : s >= 50 ? "bg-amber-100 text-amber-800" : "bg-gray-100 text-gray-600");
@@ -50,9 +51,6 @@ export function ApplicationCard({ item }: { item: ApplicationItem }) {
             </option>
           ))}
         </select>
-        <a href={o.sourceUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 text-xs text-brand-600 underline underline-offset-2">
-          Source ↗
-        </a>
         <button
           type="button"
           aria-label={`Remove ${o.title}`}
@@ -63,6 +61,9 @@ export function ApplicationCard({ item }: { item: ApplicationItem }) {
         >
           ✕
         </button>
+      </div>
+      <div className="mt-2">
+        <ApplyButton opportunity={o} compact />
       </div>
       {(update.isError || remove.isError) && <p role="alert" className="mt-2 text-xs text-red-600">Couldn’t save that change. Try again.</p>}
     </article>

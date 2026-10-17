@@ -6,7 +6,8 @@ export const APPLICATION_STATUSES = ["Saved", "Applying", "Applied", "Interview"
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 
 // "expired": deadline passed. "incomplete": missing key fields or unparseable deadline.
-export type OpportunityFlag = "expired" | "incomplete";
+// "dead_link": the source page returned 404/410 (hidden from results).
+export type OpportunityFlag = "expired" | "incomplete" | "dead_link";
 
 export interface Opportunity {
   id?: string;
@@ -22,6 +23,14 @@ export interface Opportunity {
   fetchedAt: string; // ISO date
   evidenceSnippets: string[];
   flag?: OpportunityFlag | null;
+  /** Platform the page belongs to, e.g. "Internshala". */
+  sourceSite?: string | null;
+  /** Direct apply link when the page exposes one; the UI falls back to sourceUrl. */
+  applyUrl?: string | null;
+  /** Every stored row came from a real page fetched by our own pipeline. */
+  origin?: "live_fetch" | null;
+  /** HTTP status of the liveness check on sourceUrl. */
+  httpStatus?: number | null;
 }
 
 export interface Evidence {
@@ -48,6 +57,8 @@ export interface MatchWithOpportunity extends Match {
   opportunityId: string;
   createdAt: string;
   opportunity: Opportunity;
+  /** True for an instant rule-based score that was never AI-scored (shown, labelled, never saved). */
+  isFallback?: boolean;
 }
 
 export type UrgencyLevel = "red" | "amber" | "green" | "grey" | "none";
@@ -84,4 +95,20 @@ export interface Profile {
   availabilityDate?: string;
   githubUrl?: string;
   linkedinUrl?: string;
+}
+
+export type DiscoveryJobStatus = "running" | "done" | "partial" | "failed";
+export type DiscoveryStage = "searching" | "extracting" | "matching" | "done";
+
+// Progress of a background "find opportunities" run (GET /api/discover/[jobId]).
+export interface DiscoveryJob {
+  id: string;
+  status: DiscoveryJobStatus;
+  stage: DiscoveryStage;
+  total: number;
+  done: number;
+  found: number;
+  scored: number;
+  warning: string | null;
+  error: string | null;
 }

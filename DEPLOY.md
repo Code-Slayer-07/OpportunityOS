@@ -18,12 +18,14 @@ Never commit `.env.local`. If any key was ever pasted into a chat, ticket or scr
    1. `supabase/migrations/0001_init.sql`: tables, RLS, signup trigger
    2. `supabase/migrations/0002_opportunity_flag.sql`: `opportunities.flag`
    3. `supabase/migrations/0003_indexes.sql`: read indexes
+   4. `supabase/migrations/0004_real_data_jobs.sql`: source site/origin columns, one row per page, `discovery_jobs`, `matches.is_fallback`
 3. Check *Table Editor*: `profiles`, `opportunities`, `matches`, `applications` exist and each shows "RLS enabled".
 
 ## 2. Supabase: authentication
 
 *Authentication → Providers → Email*
 
+- **Password policy:** set the minimum password length to **8** (Authentication, Password settings). The sign-up form checks 8 in the browser; this setting is what enforces it on the server.
 - **Confirm email: OFF for the demo.** With it ON, signup creates the account but gives no session until the user clicks an email link, so "sign up → land on /profile" breaks. Turn it back ON for a real launch.
 
 *Authentication → URL Configuration* (do this **after** you know the Vercel URL, step 3)
@@ -47,31 +49,32 @@ Password login works without these, but `/auth/callback` (used for the future Go
 | `GEMINI_API_KEY` | your key | **secret** |
 | `GEMINI_MODEL` | optional | default `gemini-3.1-flash-lite` |
 | `NEXT_PUBLIC_SITE_URL` | `https://<your-app>.vercel.app` | |
-| `DEMO_MODE` | `true` | `/api/discover` serves cache/seed, no live web calls |
-| `MATCH_CACHE_ONLY` | optional `true` | stored matches only, no Gemini |
+| `DEMO_MODE` | `true` | zero external calls except Supabase: saved real rows and stored AI matches only |
+| `MATCH_CACHE_ONLY` | optional `true` | stored AI matches only, no Gemini |
+| `DEMO_USER_EMAIL` | optional | the demo account (default `demo@opportunityos.dev`) |
 
    `NEXT_PUBLIC_*` values are baked in at build time, so **redeploy** after changing them.
 3. Click **Deploy**. Copy the production URL, then go back to step 2 and set the Supabase Site URL / Redirect URLs. Update `NEXT_PUBLIC_SITE_URL` if the URL changed and redeploy.
 
-## 4. Pre-load the demo data (run against production)
+## 4. Pre-load the demo data (real data only, run against production)
 
-The prefetch script talks to Supabase directly, so run it from your laptop with the **production** Supabase values in `.env.local` (it does not go through Vercel):
+The scripts talk to Supabase directly, so run them from your laptop with the **production** Supabase values in `.env.local` (they do not go through Vercel). There is no seed or sample data: everything comes from real pages.
 
 ```bash
-npm run prefetch -- --reseed
+npm run clean-urls      # once: deletes any fake/example rows left from older versions (prints them first)
+npm run demo:prepare    # real discovery for the demo profile, then Gemini scoring, then a readiness report
 ```
 
-This creates the demo user (`demo@opportunityos.dev` / `demo-password-123`; set `DEMO_USER_EMAIL` and `DEMO_USER_PASSWORD` first to use your own), loads 17 sample listings with fresh relative deadlines, scores them with Gemini (about 20 seconds) and prints a table. You want **at least 10 rows**.
+`demo:prepare` creates the demo user (`demo@opportunityos.dev` / `demo-password-123`; set `DEMO_USER_EMAIL` and `DEMO_USER_PASSWORD` first to use your own), runs up to 5 discovery runs (each about 15-60 s, uses TinyFish and Gemini credits), prints a table of the real rows (title, org, type, site, URL, deadline, HTTP status), scores them and ends with a verdict. You want **READY** (at least 10 saved AI matches, no fallbacks).
 
-- `--refresh` replaces/adds **real** listings by running live TinyFish discovery (a few minutes, uses credits). Do it the day before if you want real data on stage.
-- Re-run `--reseed` on the morning of the demo: seeded deadlines are relative to the day you seed, and the urgency colours depend on them.
+- Re-run it the day before and on the morning of the demo: records older than 7 days are fetched again, deadlines move, and expired listings are shown as "Closed".
 - The demo password is public knowledge once the URL is shared; pick your own.
 
 ## 5. Verify production
 
 1. `https://<app>/api/health` returns `{"data":{"status":"ok",...}}`.
 2. `https://<app>/` shows the landing page when logged out.
-3. Log in as the demo user: you land on `/matches` (profile is complete). Matches are already listed.
+3. Log in as the demo user: you land on `/matches` (profile is complete). Matches are already listed, each with a source badge and an **Apply / View on <Site> ↗** button.
 4. Click **↻ Refresh** (shown as **Find opportunities** on a fresh account): finishes in a few seconds, 10+ cards.
 5. Expand a card: reason, quoted evidence with a source link, gaps.
 6. **Save** two cards, open **Action Plan**: urgency colours, top priorities, navbar badge.
@@ -85,6 +88,6 @@ This creates the demo user (`demo@opportunityos.dev` / `demo-password-123`; set 
 | Redirected to `/login` in a loop | `NEXT_PUBLIC_SUPABASE_*` missing or wrong in Vercel; fix and redeploy. |
 | `/api/*` returns 503 "Authentication service unavailable" | Supabase unreachable or wrong URL/keys. |
 | Deploy fails with a function duration error | Your Vercel plan caps `maxDuration`. Lower `export const maxDuration` in `src/app/api/discover/route.ts` (300) and `.../match/route.ts` (120) to your plan's limit. In `DEMO_MODE` both finish in seconds. |
-| "Find opportunities" shows few or no cards | Run `npm run prefetch -- --reseed`; check migrations 0001-0003 all ran. |
-| Everything is red/"Closed" | Seeded deadlines have passed; run `--reseed`. |
-| Live discovery times out in production | Expected on serverless: each page takes 30-100 s. Run `prefetch -- --refresh` locally instead and keep `DEMO_MODE=true`. |
+| "Find opportunities" shows few or no cards | Run `npm run demo:prepare`; check migrations 0001-0004 all ran. |
+| Many cards say "Closed" | Those listings' deadlines have passed; run `npm run collect` to fetch current ones. |
+| Live search is slow or finds little in production | A run stops after 60 s by design. Run `npm run collect` locally and keep `DEMO_MODE=true` on Vercel. |

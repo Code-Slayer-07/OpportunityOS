@@ -1,12 +1,7 @@
 // Route protection + session refresh (Next 16 name for "middleware"). Owner: Dev A.
 import { NextResponse, type NextRequest } from "next/server";
+import { authRedirect, isPrefetch, isRsc, needsProfileLookup } from "@/lib/routing";
 import { updateSession } from "@/lib/supabase/middleware";
-
-const PROTECTED_PAGES = ["/profile", "/matches", "/action-plan"];
-const AUTH_PAGES = ["/login", "/signup"];
-
-const matchesPath = (pathname: string, bases: string[]) =>
-  bases.some((base) => pathname === base || pathname.startsWith(`${base}/`));
 
 // Copy refreshed session cookies onto a redirect so the browser keeps them.
 function redirectTo(request: NextRequest, path: string, from: NextResponse) {
@@ -16,7 +11,7 @@ function redirectTo(request: NextRequest, path: string, from: NextResponse) {
 }
 
 export async function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
   if (pathname === "/api/health") return NextResponse.next(); // public liveness check
 
   let session: Awaited<ReturnType<typeof updateSession>>;
@@ -28,21 +23,33 @@ export async function proxy(request: NextRequest) {
       ? NextResponse.json({ error: { message: "Authentication service unavailable" } }, { status: 503 })
       : NextResponse.next();
   }
-  const { response, user } = session;
+  const { response, user, supabase } = session;
 
-  if (!user) {
-    // API clients get a JSON 401 (not an HTML redirect to /login).
-    if (pathname.startsWith("/api/")) {
-      return NextResponse.json({ error: { message: "Unauthorized" } }, { status: 401 });
-    }
-    if (matchesPath(pathname, PROTECTED_PAGES)) return redirectTo(request, "/login", response);
-  } else if (matchesPath(pathname, AUTH_PAGES)) {
-    return redirectTo(request, "/profile", response);
+  // API clients get a JSON 401 (not an HTML redirect to /login).
+  if (!user && pathname.startsWith("/api/")) {
+    return NextResponse.json({ error: { message: "Unauthorized" } }, { status: 401 });
   }
 
-  return response;
+  // Signed-in users on /login or /signup go to /matches (complete profile) or /profile.
+  let profileComplete = false;
+  if (user && needsProfileLookup(pathname)) {
+    try {
+      const { data } = await supabase.from("profiles").select("profile_complete").eq("id", user.id).maybeSingle();
+      profileComplete = !!data?.profile_complete;
+    } catch {
+      // Treat as incomplete: /profile is always a safe landing page.
+    }
+  }
+
+  const target = authRedirect({ pathname, signedIn: !!user, profileComplete });
+  if (!target) return response;
+
+  // Background route prefetches would only follow the redirect and log a 404 in the console: answer them with an empty
+  // 204. Real navigations are redirected; RSC fetches keep their _rsc query so the client still receives an RSC payload.
+  if (isPrefetch(request.headers)) return new NextResponse(null, { status: 204 });
+  return redirectTo(request, isRsc(request.headers, search) ? `${target}${search}` : target, response);
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };

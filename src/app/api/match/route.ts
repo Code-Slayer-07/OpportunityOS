@@ -1,8 +1,7 @@
 // GET/POST /api/match — cached matches / gate + Gemini matching over cached opportunities (no web calls). Owner: Dev C.
 import { fail, ok } from "@/lib/api";
 import { requireUser } from "@/lib/auth/requireUser";
-import { listUserMatches } from "@/lib/matching/store";
-import { runMatching } from "@/lib/matching/run";
+import { loadMatches, runMatching } from "@/lib/matching/run";
 import { rowToProfile } from "@/lib/profile";
 
 export const maxDuration = 120;
@@ -15,7 +14,7 @@ export async function GET() {
   try {
     const { data: row, error } = await auth.supabase.from("profiles").select("*").eq("id", auth.user.id).maybeSingle();
     if (error) return fail(error.message, 500);
-    const matches = row ? await listUserMatches(auth.supabase, auth.user.id, rowToProfile(row)) : [];
+    const matches = row ? await loadMatches(auth.supabase, auth.user.id, rowToProfile(row)) : [];
     return ok({ count: matches.length, matches });
   } catch (e) {
     return fail(e instanceof Error ? e.message : "Could not load matches", 500);

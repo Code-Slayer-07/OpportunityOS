@@ -51,3 +51,13 @@ export function buildUserPrompt(profile: Profile, opp: Opportunity, now = new Da
     2,
   );
 }
+
+export const BATCH_SYSTEM_PROMPT = `${SYSTEM_PROMPT}
+
+You will receive ONE student profile and an array of opportunities, each with a numeric "id". Return {"results": [...]} with exactly one result per opportunity, each carrying the same "id" and the fields described above. Judge every opportunity independently.`;
+
+export function buildBatchPrompt(profile: Profile, opps: Opportunity[], now = new Date()): string {
+  const items = opps.map((o, id) => ({ id, ...(JSON.parse(buildUserPrompt(profile, o, now)).opportunity as object) }));
+  const base = JSON.parse(buildUserPrompt(profile, opps[0], now));
+  return JSON.stringify({ today: base.today, studentProfile: base.studentProfile, opportunities: items }, null, 2);
+}

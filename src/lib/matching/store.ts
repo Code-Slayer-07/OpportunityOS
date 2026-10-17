@@ -1,6 +1,6 @@
 // Read a user's cached matches joined with their opportunities. Owner: Dev C.
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { fromRow } from "@/lib/discovery/store";
+import { fromRow, isShowable } from "@/lib/discovery/store";
 import { passesGate } from "@/lib/matching/ruleGate";
 import type { MatchWithOpportunity, Profile } from "@/types";
 
@@ -25,7 +25,8 @@ export async function listUserMatches(
       eligibilityUncertain: m.eligibility_uncertain,
       createdAt: m.created_at,
       opportunity: fromRow(m.opportunities),
+      isFallback: !!m.is_fallback, // rows from before fallbacks stopped being saved; never treated as fresh
     }))
-    .filter((m) => passesGate(profile, m.opportunity).pass)
+    .filter((m) => isShowable(m.opportunity) && passesGate(profile, m.opportunity).pass)
     .sort((a, b) => b.score - a.score);
 }

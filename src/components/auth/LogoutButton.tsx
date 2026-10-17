@@ -1,18 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export function LogoutButton() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   async function logout() {
     setLoading(true);
     await createClient().auth.signOut();
-    router.push("/login");
-    router.refresh();
+    // Hard navigation: the session just ended, so reload everything instead of letting the router refetch the old page.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- full page load on purpose: the session changed
+    window.location.href = "/login";
   }
 
   return (

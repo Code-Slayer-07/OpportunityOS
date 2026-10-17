@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { useFindOpportunities, useMatches, useProfile, type Stage } from "@/hooks";
-import type { OpportunityType } from "@/types";
+import { useFindOpportunities, useMatches, useProfile } from "@/hooks";
+import type { DiscoveryJob, OpportunityType } from "@/types";
 import { MatchCard } from "./MatchCard";
 import { MatchSkeleton } from "./MatchSkeleton";
+import { siteOf } from "./SourceBadge";
 
 const FILTERS: { value: OpportunityType | "all"; label: string }[] = [
   { value: "all", label: "All" },
@@ -16,37 +17,41 @@ const FILTERS: { value: OpportunityType | "all"; label: string }[] = [
   { value: "scholarship", label: "Scholarship" },
 ];
 
-const STAGES: { key: Stage; label: string }[] = [
-  { key: "searching", label: "Searching the web" },
-  { key: "checking", label: "Checking eligibility" },
-  { key: "scoring", label: "Scoring matches" },
-];
-
-function Progress({ stage }: { stage: Stage }) {
-  const current = STAGES.findIndex((s) => s.key === stage);
+function Progress({ job }: { job: DiscoveryJob | null }) {
+  const stage = job?.stage ?? "searching";
+  const steps = [
+    { key: "searching", label: "Searching the web" },
+    { key: "extracting", label: job && job.total > 0 ? `Reading listings ${job.done}/${job.total}` : "Reading listings" },
+    { key: "matching", label: "Scoring matches" },
+  ];
+  const current = Math.max(0, steps.findIndex((x) => x.key === stage));
   return (
     <ol role="status" aria-live="polite" className="flex flex-wrap gap-x-6 gap-y-2 rounded-xl border border-brand-100 bg-brand-50 px-4 py-3 text-sm">
-      {STAGES.map((s, i) => (
-        <li key={s.key} className={`flex items-center gap-2 ${i < current ? "text-green-700" : i === current ? "font-semibold text-brand-700" : "text-gray-400"}`}>
+      {steps.map((x, i) => (
+        <li key={x.key} className={`flex items-center gap-2 ${i < current ? "text-green-700" : i === current ? "font-semibold text-brand-700" : "text-gray-400"}`}>
           {i < current ? "✓" : i === current ? <span className="h-3 w-3 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" /> : "○"}
-          {s.label}
+          {x.label}
           {i === current && "…"}
         </li>
       ))}
-      {stage === "searching" && <li className="text-xs text-brand-500">Live search can take a minute or two. Cached results stay visible.</li>}
+      {job && job.found > 0 && <li className="text-xs text-brand-600">{job.found} saved, {job.scored} scored so far. Cards appear as they are ready.</li>}
     </ol>
   );
 }
 
 export function MatchesView() {
   const profile = useProfile();
-  const matches = useMatches();
   const find = useFindOpportunities();
+  const matches = useMatches({ polling: find.running });
   const [filter, setFilter] = useState<OpportunityType | "all">("all");
+  const [source, setSource] = useState<string>("all");
 
   const all = matches.data ?? [];
-  const shown = filter === "all" ? all : all.filter((m) => m.opportunity.type === filter);
-  const running = find.isPending;
+  // Source chips come from the sources actually present in the results.
+  const sources = [...new Set(all.map((m) => siteOf(m.opportunity)))].sort();
+  const activeSource = source !== "all" && sources.includes(source) ? source : "all";
+  const shown = all.filter((m) => (filter === "all" || m.opportunity.type === filter) && (activeSource === "all" || siteOf(m.opportunity) === activeSource));
+  const running = find.running;
   const profileIncomplete = profile.data && !profile.data.profileComplete;
 
   if (profileIncomplete) {
@@ -68,19 +73,19 @@ export function MatchesView() {
           <h1 className="text-2xl font-semibold">Your matches</h1>
           <p className="mt-1 text-sm text-gray-600">Ranked by fit, each with the evidence behind it.</p>
         </div>
-        <Button onClick={() => find.mutate()} disabled={running || !profile.data}>
+        <Button onClick={() => find.start()} disabled={running || !profile.data}>
           {running ? "Working…" : all.length > 0 ? "↻ Refresh" : "Find opportunities"}
         </Button>
       </div>
 
-      {find.stage && <Progress stage={find.stage} />}
+      {running && <Progress job={find.job} />}
       {find.warning && !running && (
         <p role="note" className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{find.warning}</p>
       )}
-      {find.isError && (
+      {(find.startError || find.failure) && !running && (
         <div role="alert" className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-          <span>{find.error.message}</span>
-          <button onClick={() => find.mutate()} className="font-medium underline">Retry</button>
+          <span>{find.startError ?? find.failure}</span>
+          <button onClick={() => find.start()} className="font-medium underline">Retry</button>
         </div>
       )}
 
@@ -96,6 +101,22 @@ export function MatchesView() {
           </button>
         ))}
       </div>
+
+      {sources.length > 1 && (
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by source">
+          <span className="text-xs font-medium uppercase tracking-wide text-gray-400">Source</span>
+          {["all", ...sources].map((name) => (
+            <button
+              key={name}
+              onClick={() => setSource(name)}
+              aria-pressed={activeSource === name}
+              className={`rounded-full border px-3 py-1 text-xs ${activeSource === name ? "border-gray-800 bg-gray-800 text-white" : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"}`}
+            >
+              {name === "all" ? "All sources" : name}
+            </button>
+          ))}
+        </div>
+      )}
 
       {matches.isError ? (
         <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">

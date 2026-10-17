@@ -1,5 +1,6 @@
 // React Query hooks for /api/profile. Owner: Dev D.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/http";
 
 // GET /api/profile shape: unfilled columns come back as null.
 export interface ProfileResponse {
@@ -23,12 +24,7 @@ export interface ProfileResponse {
   profileComplete: boolean;
 }
 
-async function request<T>(init?: RequestInit): Promise<T> {
-  const res = await fetch("/api/profile", { ...init, headers: { "Content-Type": "application/json" } });
-  const json = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(json?.error?.message ?? "Request failed");
-  return json.data as T;
-}
+const request = <T,>(init?: RequestInit) => api<T>("/api/profile", init);
 
 export function useProfile() {
   return useQuery({ queryKey: ["profile"], queryFn: () => request<ProfileResponse>() });

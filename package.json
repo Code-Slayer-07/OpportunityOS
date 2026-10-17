@@ -10,8 +10,12 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "prefetch": "tsx scripts/prefetch-demo.ts",
-    "lint": "eslint ."
+    "prefetch": "npm run demo:prepare",
+    "lint": "eslint .",
+    "clean-urls": "tsx scripts/clean-bad-urls.ts",
+    "collect": "tsx scripts/collect-real-data.ts",
+    "prescore": "tsx scripts/prescore-demo.ts",
+    "demo:prepare": "tsx scripts/collect-real-data.ts && tsx scripts/prescore-demo.ts --report"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

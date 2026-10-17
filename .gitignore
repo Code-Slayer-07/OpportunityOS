@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
 
+.claude
+
 # Python
 __pycache__/
 *.py[cod]
@@ -39,3 +41,6 @@ Desktop.ini
 out/
 next-env.d.ts
 *.tsbuildinfo
+
+# Local discovery report
+scripts/.last-discovery.json

@@ -1,19 +1,20 @@
 # OpportunityOS: Demo Script (3.5 minutes)
 
-Spoken lines are in **bold quotes**. Actions are in *italics*. Figures and wording on cards come from the last `npm run prefetch`; the text below matches the seeded demo data, but read what is actually on screen if a number differs.
+Spoken lines are in **bold quotes**. Actions are in *italics*. **All listings are real pages fetched from the live web** by `npm run demo:prepare`, so titles, scores and deadlines depend on the day you prepared. The script therefore points at *kinds* of cards ("the top card", "a card with a gap") and tells you to read what is on screen. Nothing in it depends on exact wording.
 
-## Pre-demo checklist (morning of)
+## Pre-demo checklist (morning of, with internet)
 
-- [ ] Run `npm run prefetch -- --reseed` against production. Confirm the table lists **at least 10 matches**.
-- [ ] Vercel env has `DEMO_MODE=true`. Optionally `MATCH_CACHE_ONLY=true` so Gemini is never called on stage.
+- [ ] Run `npm run demo:prepare` against production. It collects real listings, scores them with Gemini and prints a readiness report. You want **READY** (at least 10 saved AI matches, no fallbacks).
+- [ ] In Vercel set `DEMO_MODE=true` (zero calls to TinyFish or Gemini on stage). Optionally `MATCH_CACHE_ONLY=true`.
 - [ ] Check `https://<app>/api/health`.
 - [ ] **Window 1 (incognito, logged out):** the landing page `/`, for the Hook.
-- [ ] **Window 2 (normal):** logged in as `demo@opportunityos.dev`, on `/profile`. Action Plan is empty (delete any saved items so the "Saved" buttons start clean).
-- [ ] In Window 2, open `/matches` once and confirm the cards load. Find the **Machine Learning Intern (Kiran Analytics)** card: it has a real gap and three quotes, and is the one to expand. The top card is **Software Development Intern (Nimbus Labs)**, 2 days left.
+- [ ] **Window 2 (normal):** logged in as the demo user, on `/profile`. Action Plan is empty (remove any saved items so Save buttons start clean).
+- [ ] In Window 2 open `/matches` and look at the list. Pick, in advance:
+  - **Card A (expand it):** one with a quoted evidence list **and** at least one gap; ideally a LinkedIn, Internshala or Unstop internship.
+  - **Cards B and C (save them):** one with a red or amber "N days left" chip, one with a green one. If everything is "Closed" or has no deadline, run `npm run collect` again.
+- [ ] Click **Apply / View on <Site> ↗** on Card A once and confirm the real page opens in a new tab (then close it).
 - [ ] Browser zoom 100%, notifications off, bookmarks bar hidden, laptop plugged in.
-- [ ] **Backup screen recording** of the full flow saved locally and open in a player tab.
-- [ ] Phone hotspot ready.
-- [ ] Be ready to say that the listings are a pre-loaded sample set (see Find). If you ran `--refresh`, the card titles will differ from this script: pick the best live card instead.
+- [ ] **Backup screen recording** of the full flow saved locally and open in a player tab. Phone hotspot ready.
 
 ## 0:00 Hook (20s): *Window 1, landing page*
 
@@ -25,55 +26,48 @@ Spoken lines are in **bold quotes**. Actions are in *italics*. Figures and wordi
 
 **"You tell it about yourself once. This is a B.Tech CSE student, third year, graduating 2027. Skills: React, Python, Node, ML. They want internships, hackathons and scholarships, in Delhi or remote."**
 
-*Scroll the form slowly: Education, Skills & Roles, Preferences. Click Save profile: "Profile saved" appears, and so does the green "Find opportunities" button.*
+*Scroll the form: Education, Skills & Roles, Preferences. Click Save profile: "Profile saved" appears, and so does the green "Find opportunities" button.*
 
-**"Under three minutes to set up, and it is reusable."**
+## 0:50 Find (40s): *open Matches, then click Refresh*
 
-## 0:50 Find (40s): *open Matches, then click Refresh, from cache*
+*Click "Matches" in the navbar: the ranked cards appear instantly. Point at the source badges.* **"Every card says where it came from: the site, its favicon, the host name, and when we fetched the page. These are real listings, pulled from the live web by TinyFish and read by Gemini, not a dataset we typed in."**
 
-*Click "Matches" in the navbar: the ranked cards from the last run appear instantly. Click "↻ Refresh" (the same button reads "Find opportunities" the first time you use it). The three progress stages flash by and the list updates.*
+*Click "↻ Refresh" (it reads "Find opportunities" the first time). The progress strip flashes through the stages and the list updates.* **"Behind this button the app searches site by site, reads each listing page, throws away index pages, login walls and anything it cannot verify, and scores what is left. For the stage I am replaying the snapshot I fetched this morning, so venue Wi-Fi cannot hurt us. Same pipeline."**
 
-**"Behind this button the app searches the web with TinyFish, reads each listing page with a browser agent, and stores the structured result. For the stage demo I am using a pre-loaded set of sample listings, so venue Wi-Fi cannot hurt us. Same pipeline, cached."**
+*Use the source chips (for example Unstop, LinkedIn) to filter, then All sources. Click the Hackathon type filter, then All.*
 
-*Point at the list.* **"Twelve matches, ranked by fit. Before any AI sees a listing, a rule gate has already removed the ones this student cannot apply to: a Hyderabad on-site role, a 2026-batch-only role, a job when they asked for internships."**
+## 1:30 Prove (60s): *expand Card A*
 
-*Click the Hackathon filter, then All.*
+*Click "Why you qualify" on Card A.* **"Here is the score, and here is why."** *Read the reason aloud.*
 
-## 1:30 Prove (60s): *expand the Machine Learning Intern card*
+*Point at the Evidence list.* **"Each requirement is paired with the part of the profile that satisfies it, and the exact sentence quoted from the listing, with a link to the page it came from and the time we fetched it. Every quote is checked against the page text, and a value that is not on the page is dropped. The model is not allowed to invent evidence."**
 
-*Click "Why you qualify" on the Machine Learning Intern card.*
+*Point at Gaps.* **"And it tells you what you are missing, so you know where to spend your time."**
 
-**"Score 85. But a score is just a number, so here is why."** *Read the reason aloud.*
+*(Optional, 10s: expand a card showing the amber banner.)* **"When it cannot be sure, it says so: 'Eligibility unclear, verify on source.'"**
 
-*Point at the Evidence list.* **"Each requirement is paired with the part of the profile that satisfies it, and the exact sentence quoted from the listing: 'B.Tech or M.Tech students in CSE or ECE.' Next to it is the source link and the date we read it. We also check that every quote really appears in the listing; the model is not allowed to invent evidence."**
-
-*Point at Gaps.* **"And it tells you what you are missing: the profile does not mention scikit-learn, which the listing requires. Honest gaps are how you decide where to spend your time."**
-
-*(Optional, 10s: expand CodeSprint Delhi.)* **"When it cannot be sure, it says so: 'Eligibility unclear, verify on source.'"**
-
-**"This is the part a job board cannot do."**
+*Click **Apply / View on <Site> ↗**. The real listing opens in a new tab.* **"One click and you are on the original page. This is the part a job board cannot do: the proof sits next to the link."** *(Close the tab.)*
 
 ## 2:30 Act (40s): *save two, open Action Plan*
 
-*Click Save on Software Development Intern (Nimbus Labs), then on CodeSprint Delhi 2026. Both buttons turn to "✓ Saved" instantly. Click "Action Plan" in the navbar.*
+*Click Save on Card B, then Card C. Both buttons turn to "✓ Saved" instantly. Click "Action Plan" in the navbar.*
 
-**"One click saves it. Now the action plan."** *Point at the red reminder banner.* **"Something closes in two days, so the app tells me, in-app. Colours show urgency: red under three days, amber up to a week, green after that."**
+**"One click saves it. Now the action plan."** *Point at the reminder banner if one shows.* **"Something closes soon, so the app tells me, in-app. Colours show urgency: red under three days, amber up to a week, green after that."**
 
-*Point at Top priorities.* **"Priority is fit times urgency, so a strong match that closes soon beats a perfect match with a month left. 'Strong match, 95, and closes in 2 days.'"**
-
-*Use the dropdown to move one card from Saved to Applying.* **"I move it across as I go, and it persists."**
+*Point at Top priorities.* **"Priority is fit times urgency, so a strong match that closes soon beats a perfect match with a month left."** *Use the dropdown to move a card from Saved to Applying.* **"I move it across as I go, and it persists. Every card keeps its Apply button."**
 
 ## 3:10 Close (20s)
 
-**"Everything you saw ran through one pipeline: one data model, one rule gate, one evidence format. Internships, jobs, hackathons and scholarships are the same code with different search queries. Find what matters. Prove it is real. Never miss a deadline. Thank you."**
+**"Everything you saw ran through one pipeline: one data model, one rule gate, one evidence format, and every record points back to its real source. Internships, jobs, hackathons and scholarships are the same code with different search queries. Find what matters. Prove it is real. Never miss a deadline. Thank you."**
 
 ## If something goes wrong
 
 | Problem | Do this |
 | --- | --- |
-| Wi-Fi fails | Switch to the phone hotspot. If the site still will not load, run locally (`npm run dev`, `DEMO_MODE=true`) or play the backup recording. Supabase is a cloud service, so with no internet the live app cannot log in; the recording is the real fallback. |
-| Cards are empty or everything says "Closed" | Run `npm run prefetch -- --reseed` (about 20 s), refresh. If there is no time, play the recording. |
-| Refresh / "Find opportunities" errors | Click Retry once. If it fails, refresh: the cached matches load on page open without it. |
-| A number or sentence differs from this script | Read what is on screen. Nothing in the script depends on exact wording. |
-| Running over time | Skip the optional CodeSprint beat and the Hackathon filter. |
-| Judge asks "is this live data?" | Be direct: the stage run uses a cached sample set; live discovery is the same code path (`npm run prefetch -- --refresh`) and takes a few minutes because a browser agent reads each page. |
+| Wi-Fi fails | Switch to the phone hotspot. DEMO_MODE needs no internet except Supabase. If the site still will not load, run locally (`npm run dev`, `DEMO_MODE=true`) or play the backup recording. |
+| Cards are empty or mostly "Closed" | Run `npm run demo:prepare` (a few minutes), refresh. If there is no time, play the recording. |
+| Some cards say "Rule-based, not AI-scored" | Those listings have no saved AI score yet (shown instantly, never saved). Run `npm run prescore`, or just expand a card that has evidence. |
+| Refresh / "Find opportunities" errors | Click Retry once. If it fails, reload: the saved matches load on page open without it. |
+| The "Apply" tab shows a login wall | Say so: the listing's own site asked for a login. We never bypass that; the saved evidence still came from the public page. |
+| A number or sentence differs from this script | Read what is on screen. |
+| Judge asks "is this live data?" | Be direct: it is real data fetched from the live web earlier; the stage run replays that snapshot. A live search runs in the background (about 15-60 s per run). |

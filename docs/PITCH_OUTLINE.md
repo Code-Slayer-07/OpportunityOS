@@ -29,7 +29,7 @@ Judging categories: **Innovation**, **Technical execution**, **UX**, **Impact**,
 
 ### 5. Live demo (3.5 minutes): follow `docs/DEMO_SCRIPT.md`  `UX` `Presentation`
 - Profile → Find → Prove (expand a card) → Act (save, action plan) → Close.
-- **Notes:** Say up front that the stage run uses a cached sample set and why (venue Wi-Fi). Have the backup recording ready. Slide shows only "LIVE DEMO".
+- **Notes:** Say up front that the stage run replays a snapshot of real listings fetched earlier, and why (venue Wi-Fi). Every card links to its original page. Have the backup recording ready. Slide shows only "LIVE DEMO".
 
 ### 6. The differentiator: "prove it"  `Innovation` `Technical execution`
 - Every match carries: score, reason, **quoted evidence**, source URL, fetched date, and honest gaps.
@@ -44,7 +44,7 @@ Judging categories: **Innovation**, **Technical execution**, **UX**, **Impact**,
 - **Notes:** Stress three decisions: (1) a deterministic gate in front of the LLM, so cheap rules do the obvious filtering; (2) schema-validated model output with a fallback, so the system never crashes on a bad response; (3) the service-role key lives only on the server.
 
 ### 8. Engineering quality and metrics  `Technical execution`
-- Measured: with cached data every step of the flow (login, profile, find, save, status change) responded in about 1 second in our end-to-end run; pre-loading 12 scored matches took about 20 seconds; 38 automated tests (rule gate, matcher fallbacks, priority maths, seed data); lint and production build clean; RLS verified with a second user.
+- Measured: with saved data every step of the flow (login, profile, find, save, status change) responds in about 1 second, with zero calls to TinyFish or Gemini in demo mode; 14 listings are scored by Gemini in about 6 seconds (4 per call); a live search run takes 15-60 seconds and saved 47 real listings from 10 platforms; 65 automated tests (rule gate, matcher batching and fallbacks, URL classification, extraction validation, priority maths, routing); lint, type-check and production build clean; RLS verified with a second user.
 - Resilience: timeouts and one retry on every external call; Gemini failure falls back to a rule-based score; per-URL failures never fail a run.
 - Product targets (not yet measured with users): profile in under 3 minutes; ranked shortlist in under a minute; zero missed deadlines for saved items.
 - **Notes:** Clearly separate *measured* from *target*. Judges trust the honest split.
@@ -81,5 +81,5 @@ Judging categories: **Innovation**, **Technical execution**, **UX**, **Impact**,
 
 - **"How do you know the quotes are real?"** Each quote is checked against the extracted listing text before it is shown; unverifiable ones are removed and a gap is added.
 - **"What if the AI is down?"** One retry, then a rule-based score labelled as such. The app never errors out on a bad response.
-- **"Is the demo data live?"** The stage run uses a cached sample set; the live path is the same code and is run ahead of time because browser-agent extraction takes tens of seconds per page.
+- **"Is the demo data live?"** It is real data: pages fetched from the live web by the same pipeline shortly before the demo, each with its source URL and fetch time. The stage run replays that snapshot so venue Wi-Fi cannot break it.
 - **"Why not just use ChatGPT?"** It cannot read the live listings for you, cannot cite the source and date, and does not track your deadlines.

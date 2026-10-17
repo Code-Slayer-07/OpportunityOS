@@ -1,4 +1,5 @@
 import type { Evidence } from "@/types";
+import { siteName } from "@/lib/discovery/sites";
 import { formatDate } from "./format";
 
 export function EvidenceList({ items }: { items: Evidence[] }) {
@@ -18,9 +19,9 @@ export function EvidenceList({ items }: { items: Evidence[] }) {
             “{e.quote}”
           </blockquote>
           <p className="mt-2 text-xs text-gray-500">
-            Source:{" "}
+            from{" "}
             <a href={e.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-brand-600 underline underline-offset-2 hover:text-brand-800">
-              {hostname(e.sourceUrl)}
+              {siteName(e.sourceUrl)} ({hostname(e.sourceUrl)})
             </a>{" "}
             · fetched {formatDate(e.fetchedAt)}
           </p>

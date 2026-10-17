@@ -7,13 +7,14 @@ import { useApplications, useSaveApplication } from "@/hooks";
 import type { MatchWithOpportunity } from "@/types";
 import { EvidenceList } from "./EvidenceList";
 import { formatDate } from "./format";
+import { ApplyButton, SourceBadge } from "./SourceBadge";
 
 const scoreTone = (score: number) =>
   score >= 75 ? "bg-green-100 text-green-800 ring-green-300" : score >= 50 ? "bg-amber-100 text-amber-800 ring-amber-300" : "bg-gray-100 text-gray-600 ring-gray-300";
 
 // Fallback results (Gemini unavailable) carry this marker text from the matcher.
 const isFallback = (m: MatchWithOpportunity) =>
-  m.reason.startsWith("AI reasoning unavailable") || m.gaps.includes("Reasoning unavailable");
+  m.isFallback === true || m.reason.startsWith("AI reasoning unavailable") || m.gaps.includes("Reasoning unavailable");
 
 export function MatchCard({ match }: { match: MatchWithOpportunity }) {
   const [open, setOpen] = useState(false);
@@ -23,7 +24,8 @@ export function MatchCard({ match }: { match: MatchWithOpportunity }) {
   const saved = !!applications?.some((a) => a.opportunityId === match.opportunityId);
   const { opportunity: o } = match;
   const fallback = isFallback(match);
-  const where = [o.location, o.remote && "Remote"].filter(Boolean).join(" · ") || "Location not listed";
+  const place = o.location.trim();
+  const where = o.remote ? (place && place.toLowerCase() !== "remote" ? `${place} · Remote OK` : "Remote") : place || "Location not listed";
 
   return (
     <article className="rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
@@ -70,9 +72,13 @@ export function MatchCard({ match }: { match: MatchWithOpportunity }) {
             </span>
           </div>
 
+          <div className="mt-2">
+            <SourceBadge opportunity={o} />
+          </div>
+
           {/* Always visible so the card answers "why am I seeing this?" without expanding. */}
           <p className={`mt-3 text-sm text-gray-800 ${open ? "" : "line-clamp-2"}`}>
-            {fallback && <span className="mr-1 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">Rule-based</span>}
+            {fallback && <span className="mr-1 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">Rule-based, not AI-scored</span>}
             {match.reason}
           </p>
 
@@ -85,8 +91,9 @@ export function MatchCard({ match }: { match: MatchWithOpportunity }) {
             >
               {open ? "Hide details ▲" : "Why you qualify ▼"}
             </button>
-            <span className="text-xs text-gray-400">as of {formatDate(o.fetchedAt)}</span>
+            <ApplyButton opportunity={o} />
           </div>
+          <p className="mt-1 text-right text-xs text-gray-400">as of {formatDate(o.fetchedAt)}</p>
         </div>
       </div>
 
@@ -126,14 +133,7 @@ export function MatchCard({ match }: { match: MatchWithOpportunity }) {
             </ul>
           </section>
 
-          <a
-            href={o.sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex text-sm font-medium text-brand-600 underline underline-offset-2 hover:text-brand-800"
-          >
-            View original listing ↗
-          </a>
+          <ApplyButton opportunity={o} />
         </div>
       )}
     </article>

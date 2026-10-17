@@ -36,3 +36,24 @@ export const GEMINI_RESPONSE_SCHEMA = {
   },
   required: ["score", "reason", "evidenceMap", "gaps", "eligibilityUncertain"],
 };
+
+// Batch scoring: one call scores several opportunities, one result per opportunity (matched by `id`).
+export const batchOutputSchema = z.object({
+  results: z.array(matchOutputSchema.extend({ id: z.number().int() })),
+});
+export type BatchOutput = z.infer<typeof batchOutputSchema>;
+
+export const BATCH_RESPONSE_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    results: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: { id: { type: "INTEGER" }, ...GEMINI_RESPONSE_SCHEMA.properties },
+        required: ["id", ...GEMINI_RESPONSE_SCHEMA.required],
+      },
+    },
+  },
+  required: ["results"],
+};
